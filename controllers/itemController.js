@@ -36,29 +36,15 @@ const addItem = async (req, res) => {
 // Vendor only — Toggle Availability
 const updateAvailability = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    console.log("TOGGLE ID:", id);
-
-    // ✅ FIX 1: Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid item ID" });
-    }
-
-    const item = await Item.findById(id);
+    const item = await Item.findByIdAndUpdate(
+      req.params.id,
+      { $bit: { available: { xor: 1 } } }, // toggle
+      { new: true }
+    );
 
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
     }
-
-    // ✅ FIX 2: Ensure field exists
-    if (item.available === undefined) {
-      item.available = true;
-    }
-
-    item.available = !item.available;
-
-    await item.save();
 
     res.json(item);
   } catch (err) {
@@ -70,30 +56,17 @@ const updateAvailability = async (req, res) => {
 // Update Item Price
 const updatePrice = async (req, res) => {
   try {
-    const { id } = req.params;
     const { price } = req.body;
 
-    console.log("PRICE UPDATE ID:", id, "PRICE:", price);
-
-    // ✅ FIX 1: Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid item ID" });
-    }
-
-    const item = await Item.findById(id);
+    const item = await Item.findByIdAndUpdate(
+      req.params.id,
+      { price: Number(price) },
+      { new: true }
+    );
 
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
     }
-
-    // ✅ FIX 2: Ensure valid price
-    if (price === undefined || isNaN(price)) {
-      return res.status(400).json({ message: "Invalid price" });
-    }
-
-    item.price = Number(price);
-
-    await item.save();
 
     res.json(item);
   } catch (err) {
