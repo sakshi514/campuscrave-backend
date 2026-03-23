@@ -36,15 +36,15 @@ const addItem = async (req, res) => {
 // Vendor only — Toggle Availability
 const updateAvailability = async (req, res) => {
   try {
-    const item = await Item.findByIdAndUpdate(
-      req.params.id,
-      { $bit: { available: { xor: 1 } } }, // toggle
-      { new: true }
-    );
+    const item = await Item.findById(req.params.id);
 
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
     }
+
+    item.available = !item.available; // ✅ THIS IS THE FIX
+
+    await item.save();
 
     res.json(item);
   } catch (err) {
