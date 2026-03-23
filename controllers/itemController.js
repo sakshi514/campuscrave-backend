@@ -36,9 +36,11 @@ const addItem = async (req, res) => {
 // Vendor only — Toggle Availability
 const updateAvailability = async (req, res) => {
   try {
+    const { available } = req.body;
+
     const item = await Item.findByIdAndUpdate(
       req.params.id,
-      { $set: { available: req.body.available } }, // OR toggle from frontend
+      { available }, // ✅ use value from frontend
       { new: true }
     );
 
@@ -52,7 +54,6 @@ const updateAvailability = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 // Update Item Price
 const updatePrice = async (req, res) => {
   try {
